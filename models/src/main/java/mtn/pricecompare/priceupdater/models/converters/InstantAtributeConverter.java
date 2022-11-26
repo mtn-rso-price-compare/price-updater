@@ -1,4 +1,4 @@
-package si.fri.rso.samples.imagecatalog.models.converters;
+package mtn.pricecompare.priceupdater.models.converters;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
@@ -17,4 +17,5 @@ public class InstantAtributeConverter implements AttributeConverter<Instant, Tim
     public Instant convertToEntityAttribute(Timestamp timestamp) {
         return (timestamp == null ? null : timestamp.toInstant());
     }
+
 }

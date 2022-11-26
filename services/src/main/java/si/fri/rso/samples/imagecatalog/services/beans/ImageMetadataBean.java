@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
 import com.kumuluz.ee.rest.beans.QueryParameters;
 import com.kumuluz.ee.rest.utils.JPAUtils;
 
-import si.fri.rso.samples.imagecatalog.lib.ImageMetadata;
-import si.fri.rso.samples.imagecatalog.models.converters.ImageMetadataConverter;
-import si.fri.rso.samples.imagecatalog.models.entities.ImageMetadataEntity;
+import mtn.pricecompare.priceupdater.lib.ImageMetadata;
+import mtn.pricecompare.priceupdater.models.converters.ImageMetadataConverter;
+import mtn.pricecompare.priceupdater.models.entities.ImageMetadataEntity;
 
 
 @RequestScoped

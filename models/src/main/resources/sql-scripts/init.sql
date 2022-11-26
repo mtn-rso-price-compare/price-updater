@@ -1,1 +1,7 @@
-INSERT INTO image_metadata (title, description, width, height, created, uri) VALUES ('Our first image', 'This is the first image that we created for the RSO course.', 1280, 1325, TIMESTAMP '2006-01-01 15:36:38', 'https://www.nasa.gov/sites/default/files/styles/full_width/public/thumbnails/image/tess_first_light-tb.jpg');
+INSERT INTO request (status, last_updated) VALUES ('SUCCESS', TIMESTAMP '2022-11-26 10:45:48');
+INSERT INTO item (name) VALUES ('piščančje prsi');
+INSERT INTO store (name, url) VALUES ('ENGROTUŠ d.o.o.', 'https://www.tus.si');
+INSERT INTO price (item_id, store_id, amount) VALUES
+    ((SELECT id FROM item WHERE name='piščančje prsi'),
+     (SELECT id FROM store WHERE name='ENGROTUŠ d.o.o.'),
+     3.59);
