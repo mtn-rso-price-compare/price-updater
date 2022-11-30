@@ -32,7 +32,7 @@ public class StoreBean {
         TypedQuery<StoreEntity> query = em.createNamedQuery("StoreEntity.getAll", StoreEntity.class);
         List<StoreEntity> resultList = query.getResultList();
 
-        return resultList.stream().map(StoreConverter::toDto).collect(Collectors.toList());
+        return resultList.stream().map(se -> StoreConverter.toDto(se, false)).collect(Collectors.toList());
     }
 
     // GET request with parameters
@@ -42,7 +42,7 @@ public class StoreBean {
                 .defaultOffset(0).build();
 
         return JPAUtils.queryEntities(em, StoreEntity.class, queryParameters).stream()
-                .map(StoreConverter::toDto).collect(Collectors.toList());
+                .map(se -> StoreConverter.toDto(se, false)).collect(Collectors.toList());
     }
 
     // POST
@@ -60,7 +60,7 @@ public class StoreBean {
 
         if (storeEntity.getId() == null)
             throw new RuntimeException("Entity was not persisted");
-        return StoreConverter.toDto(storeEntity);
+        return StoreConverter.toDto(storeEntity, false);
     }
 
     // GET by id
@@ -70,7 +70,7 @@ public class StoreBean {
         if (storeEntity == null)
             throw new NotFoundException();
 
-        return StoreConverter.toDto(storeEntity);
+        return StoreConverter.toDto(storeEntity, true);
     }
 
     // PUT by id
@@ -80,19 +80,18 @@ public class StoreBean {
         StoreEntity storeEntity = em.find(StoreEntity.class, id);
         if (storeEntity == null)
             throw new NotFoundException();
-        StoreEntity updatedStoreEntity = StoreConverter.toEntity(store, Collections.emptyList());
+        StoreEntity updatedStoreEntity = StoreConverter.toEntity(store, storeEntity.getPriceEntityList());
 
         try {
             beginTx();
             updatedStoreEntity.setId(storeEntity.getId());
-            updatedStoreEntity.setPriceEntityList(storeEntity.getPriceEntityList());
             updatedStoreEntity = em.merge(updatedStoreEntity);
             commitTx();
         } catch (Exception e) {
             rollbackTx();
         }
 
-        return StoreConverter.toDto(updatedStoreEntity);
+        return StoreConverter.toDto(updatedStoreEntity, false);
     }
 
     // DELETE by id

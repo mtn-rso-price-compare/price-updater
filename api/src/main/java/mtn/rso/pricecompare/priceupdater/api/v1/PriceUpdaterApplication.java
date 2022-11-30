@@ -14,6 +14,6 @@ import org.eclipse.microprofile.openapi.annotations.servers.Server;
         license = @License(name = "dev"), description = "API for updating and storing price information."),
         servers = @Server(url = "http://localhost:8080/"))
 @ApplicationPath("/v1")
-public class ImageMetadataApplication extends Application {
+public class PriceUpdaterApplication extends Application {
 
 }

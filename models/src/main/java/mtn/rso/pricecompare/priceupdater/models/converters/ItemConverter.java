@@ -9,12 +9,13 @@ import java.util.stream.Collectors;
 
 public class ItemConverter {
 
-    public static Item toDto(ItemEntity entity) {
+    public static Item toDto(ItemEntity entity, boolean setPrices) {
 
         Item dto = new Item();
         dto.setItemId(entity.getId());
         dto.setItemName(entity.getName());
-        dto.setPriceList(entity.getPriceEntityList().stream()
+        if(setPrices)
+            dto.setPriceList(entity.getPriceEntityList().stream()
                 .map(pe -> PriceConverter.toDto(pe, false, true))
                 .collect(Collectors.toList()));
 

@@ -32,7 +32,7 @@ public class ItemBean {
         TypedQuery<ItemEntity> query = em.createNamedQuery("ItemEntity.getAll", ItemEntity.class);
         List<ItemEntity> resultList = query.getResultList();
 
-        return resultList.stream().map(ItemConverter::toDto).collect(Collectors.toList());
+        return resultList.stream().map(ie -> ItemConverter.toDto(ie, false)).collect(Collectors.toList());
     }
 
     // GET request with parameters
@@ -42,7 +42,7 @@ public class ItemBean {
                 .defaultOffset(0).build();
 
         return JPAUtils.queryEntities(em, ItemEntity.class, queryParameters).stream()
-                .map(ItemConverter::toDto).collect(Collectors.toList());
+                .map(ie -> ItemConverter.toDto(ie, false)).collect(Collectors.toList());
     }
 
     // POST
@@ -60,7 +60,7 @@ public class ItemBean {
 
         if (itemEntity.getId() == null)
             throw new RuntimeException("Entity was not persisted");
-        return ItemConverter.toDto(itemEntity);
+        return ItemConverter.toDto(itemEntity, false);
     }
 
     // GET by id
@@ -70,7 +70,7 @@ public class ItemBean {
         if (itemEntity == null)
             throw new NotFoundException();
 
-        return ItemConverter.toDto(itemEntity);
+        return ItemConverter.toDto(itemEntity, true);
     }
 
     // PUT by id
@@ -80,19 +80,18 @@ public class ItemBean {
         ItemEntity itemEntity = em.find(ItemEntity.class, id);
         if (itemEntity == null)
             throw new NotFoundException();
-        ItemEntity updatedItemEntity = ItemConverter.toEntity(item, Collections.emptyList());
+        ItemEntity updatedItemEntity = ItemConverter.toEntity(item, itemEntity.getPriceEntityList());
 
         try {
             beginTx();
             updatedItemEntity.setId(itemEntity.getId());
-            updatedItemEntity.setPriceEntityList(itemEntity.getPriceEntityList());
             updatedItemEntity = em.merge(updatedItemEntity);
             commitTx();
         } catch (Exception e) {
             rollbackTx();
         }
 
-        return ItemConverter.toDto(updatedItemEntity);
+        return ItemConverter.toDto(updatedItemEntity, false);
     }
 
     // DELETE by id
