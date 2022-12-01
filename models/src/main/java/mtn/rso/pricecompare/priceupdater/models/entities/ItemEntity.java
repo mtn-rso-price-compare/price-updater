@@ -19,7 +19,7 @@ public class ItemEntity {
     @Column(name = "name")
     private String name;
 
-    @OneToMany(mappedBy = "item")
+    @OneToMany(mappedBy = "itemEntity")
     List<PriceEntity> priceEntityList;
 
     public Integer getId() {

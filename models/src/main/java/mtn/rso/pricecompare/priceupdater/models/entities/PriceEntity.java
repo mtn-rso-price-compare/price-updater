@@ -15,12 +15,12 @@ public class PriceEntity {
     @EmbeddedId
     private PriceKey id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @MapsId("itemId")
     @JoinColumn(name = "item_id")
     private ItemEntity itemEntity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @MapsId("storeId")
     @JoinColumn(name = "store_id")
     private StoreEntity storeEntity;

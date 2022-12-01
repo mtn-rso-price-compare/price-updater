@@ -22,7 +22,7 @@ public class StoreEntity {
     @Column(name = "url")
     private String url;
 
-    @OneToMany(mappedBy = "store")
+    @OneToMany(mappedBy = "storeEntity")
     List<PriceEntity> priceEntityList;
 
     public Integer getId() {
