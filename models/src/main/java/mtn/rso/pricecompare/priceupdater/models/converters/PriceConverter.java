@@ -31,4 +31,15 @@ public class PriceConverter {
         return entity;
     }
 
+    public static void completeEntity(PriceEntity partialEntity, PriceEntity fullEntity) {
+        if(partialEntity.getItemEntity() == null)
+            partialEntity.setItemEntity(fullEntity.getItemEntity());
+        if(partialEntity.getStoreEntity() == null)
+            partialEntity.setStoreEntity(fullEntity.getStoreEntity());
+        if(partialEntity.getAmount() == null)
+            partialEntity.setAmount(fullEntity.getAmount());
+        if(partialEntity.getLastUpdated() == null)
+            partialEntity.setLastUpdated(fullEntity.getLastUpdated());
+    }
+
 }

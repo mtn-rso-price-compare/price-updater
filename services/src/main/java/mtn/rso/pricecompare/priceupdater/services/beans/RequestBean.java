@@ -90,6 +90,7 @@ public class RequestBean {
             commitTx();
         } catch (Exception e) {
             rollbackTx();
+            throw new RuntimeException("Entity was not persisted");
         }
 
         return RequestConverter.toDto(requestEntity);

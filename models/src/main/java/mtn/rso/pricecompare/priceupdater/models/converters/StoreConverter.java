@@ -33,4 +33,12 @@ public class StoreConverter {
         return entity;
     }
 
+    public static void completeEntity(StoreEntity partialEntity, StoreEntity fullEntity) {
+        if(partialEntity.getName() == null)
+            partialEntity.setName(fullEntity.getName());
+        if(partialEntity.getUrl() == null)
+            partialEntity.setUrl(fullEntity.getUrl());
+        if(partialEntity.getPriceEntityList() == null)
+            partialEntity.setPriceEntityList(fullEntity.getPriceEntityList());
+    }
 }

@@ -81,6 +81,7 @@ public class ItemBean {
         if (itemEntity == null)
             throw new NotFoundException();
         ItemEntity updatedItemEntity = ItemConverter.toEntity(item, itemEntity.getPriceEntityList());
+        ItemConverter.completeEntity(updatedItemEntity, itemEntity);
 
         try {
             beginTx();
@@ -89,6 +90,7 @@ public class ItemBean {
             commitTx();
         } catch (Exception e) {
             rollbackTx();
+            throw new RuntimeException("Entity was not persisted");
         }
 
         return ItemConverter.toDto(updatedItemEntity, false);

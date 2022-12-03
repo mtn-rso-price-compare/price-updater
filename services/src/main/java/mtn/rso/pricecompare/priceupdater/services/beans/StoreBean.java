@@ -81,6 +81,7 @@ public class StoreBean {
         if (storeEntity == null)
             throw new NotFoundException();
         StoreEntity updatedStoreEntity = StoreConverter.toEntity(store, storeEntity.getPriceEntityList());
+        StoreConverter.completeEntity(updatedStoreEntity, storeEntity);
 
         try {
             beginTx();
@@ -89,6 +90,7 @@ public class StoreBean {
             commitTx();
         } catch (Exception e) {
             rollbackTx();
+            throw new RuntimeException("Entity was not persisted");
         }
 
         return StoreConverter.toDto(updatedStoreEntity, false);

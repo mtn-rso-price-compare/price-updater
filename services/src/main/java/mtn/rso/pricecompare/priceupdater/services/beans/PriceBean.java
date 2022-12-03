@@ -92,6 +92,7 @@ public class PriceBean {
         if (priceEntity == null || itemEntity == null || storeEntity == null)
             throw new NotFoundException();
         PriceEntity updatedPriceEntity = PriceConverter.toEntity(price, itemEntity, storeEntity);
+        PriceConverter.completeEntity(updatedPriceEntity, priceEntity);
 
         try {
             beginTx();
@@ -101,6 +102,7 @@ public class PriceBean {
         }
         catch (Exception e) {
             rollbackTx();
+            throw new RuntimeException("Entity was not persisted");
         }
 
         return PriceConverter.toDto(updatedPriceEntity, true, true);

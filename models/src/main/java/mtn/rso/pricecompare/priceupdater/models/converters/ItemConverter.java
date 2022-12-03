@@ -31,4 +31,11 @@ public class ItemConverter {
         return entity;
     }
 
+    public static void completeEntity(ItemEntity partialEntity, ItemEntity fullEntity) {
+        if(partialEntity.getName() == null)
+            partialEntity.setName(fullEntity.getName());
+        if(partialEntity.getPriceEntityList() == null)
+            partialEntity.setPriceEntityList(fullEntity.getPriceEntityList());
+    }
+
 }
