@@ -33,7 +33,6 @@ public class ItemResource {
     @Inject
     private ItemBean itemBean;
 
-
     @Context
     protected UriInfo uriInfo;
 

@@ -1,5 +1,6 @@
 package mtn.rso.pricecompare.priceupdater.api.v1.resources;
 
+import mtn.rso.pricecompare.priceupdater.api.v1.processing.RequestProcessing;
 import mtn.rso.pricecompare.priceupdater.lib.Request;
 import mtn.rso.pricecompare.priceupdater.services.beans.RequestBean;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -32,6 +33,9 @@ public class RequestResource {
 
     @Inject
     private RequestBean requestBean;
+
+    @Inject
+    private RequestProcessing requestProcessing;
 
     @Context
     protected UriInfo uriInfo;
@@ -68,6 +72,8 @@ public class RequestResource {
         } catch (RuntimeException e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
+
+        requestProcessing.processRequest(request.getRequestId());
         return Response.status(Response.Status.ACCEPTED).entity(request).build();
     }
 

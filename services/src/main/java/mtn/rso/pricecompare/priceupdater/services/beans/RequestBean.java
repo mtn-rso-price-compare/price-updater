@@ -49,7 +49,7 @@ public class RequestBean {
     public Request createRequest() {
 
         RequestEntity requestEntity = new RequestEntity();
-        requestEntity.setStatus(1);
+        requestEntity.setStatus(RequestConverter.statusToInteger("PROCESSING"));
         requestEntity.setLastUpdated(Instant.now());
 
         try {
