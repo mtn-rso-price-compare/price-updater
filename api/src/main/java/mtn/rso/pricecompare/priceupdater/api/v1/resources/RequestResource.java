@@ -40,27 +40,33 @@ public class RequestResource {
     @Context
     protected UriInfo uriInfo;
 
-    @Operation(description = "Get log of all recent requests to update prices.", summary = "Get all requests")
+    @Operation(description = "Get a list of of all recent requests to update prices.", summary = "Get all requests")
     @APIResponses({
-            @APIResponse(responseCode = "200",
+            @APIResponse(
+                    responseCode = "200",
                     description = "List of requests",
-                    content = @Content(schema = @Schema(implementation = Request.class, type = SchemaType.ARRAY)),
-                    headers = {@Header(name = "X-Total-Count", description = "Number of objects in list")}
+                    headers = {@Header(
+                            name = "X-Total-Count",
+                            description = "Number of objects in list"
+                    )},
+                    content = @Content(schema = @Schema(implementation = Request.class, type = SchemaType.ARRAY))
             )})
     @GET
     public Response getRequest() {
 
-        List<Request> requests = requestBean.getRequestFilter(uriInfo);
-        return Response.status(Response.Status.OK).entity(requests).build();
+        List<Request> requestList = requestBean.getRequestFilter(uriInfo);
+        return Response.status(Response.Status.OK).header("X-Total-Count", requestList.size()).entity(requestList).build();
     }
 
-    @Operation(description = "Make a new request to update prices.", summary = "Make request")
+    @Operation(description = "Submit a new request to update prices according to configuration.", summary = "Submit request")
     @APIResponses({
-            @APIResponse(responseCode = "202",
+            @APIResponse(
+                    responseCode = "202",
                     description = "Request accepted for processing",
                     content = @Content(schema = @Schema(implementation = Request.class))
             ),
-            @APIResponse(responseCode = "500",
+            @APIResponse(
+                    responseCode = "500",
                     description = "Error in persisting request"
             )})
     @POST
@@ -77,18 +83,20 @@ public class RequestResource {
         return Response.status(Response.Status.ACCEPTED).entity(request).build();
     }
 
-    @Operation(description = "Get information for a recent request to update prices.", summary = "Get information for a request")
+    @Operation(description = "Get information for a recent request to update prices.", summary = "Get request")
     @APIResponses({
-            @APIResponse(responseCode = "200",
+            @APIResponse(
+                    responseCode = "200",
                     description = "Request",
                     content = @Content(schema = @Schema(implementation = Request.class))
             ),
-            @APIResponse(responseCode = "404",
+            @APIResponse(
+                    responseCode = "404",
                     description = "Request not found"
             )})
     @GET
     @Path("/{requestId}")
-    public Response getRequest(@Parameter(description = "Request ID", required = true)
+    public Response getRequest(@Parameter(name = "request ID", required = true)
                                @PathParam("requestId") Integer requestId) {
 
         Request request;

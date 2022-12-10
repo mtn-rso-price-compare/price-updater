@@ -36,33 +36,39 @@ public class ItemResource {
     @Context
     protected UriInfo uriInfo;
 
-    @Operation(description = "Get a list of all items.", summary = "Get all items")
+    @Operation(description = "Get a list of all items in the database.", summary = "Get all items")
     @APIResponses({
-            @APIResponse(responseCode = "200",
+            @APIResponse(
+                    responseCode = "200",
                     description = "List of items",
-                    content = @Content(schema = @Schema(implementation = Item.class, type = SchemaType.ARRAY)),
-                    headers = {@Header(name = "X-Total-Count", description = "Number of objects in list")}
+                    headers = {@Header(
+                            name = "X-Total-Count",
+                            description = "Number of objects in list"
+                    )},
+                    content = @Content(schema = @Schema(implementation = Item.class, type = SchemaType.ARRAY))
             )})
     @GET
     public Response getItem() {
 
         List<Item> itemList = itemBean.getItemFilter(uriInfo);
-        return Response.status(Response.Status.OK).entity(itemList).build();
+        return Response.status(Response.Status.OK).header("X-Total-Count", itemList.size()).entity(itemList).build();
     }
 
 
-    @Operation(description = "Get an item and its prices.", summary = "Get item prices")
+    @Operation(description = "Get an item and its prices by item ID.", summary = "Get item")
     @APIResponses({
-            @APIResponse(responseCode = "200",
+            @APIResponse(
+                    responseCode = "200",
                     description = "Item",
                     content = @Content(schema = @Schema(implementation = Item.class))
             ),
-            @APIResponse(responseCode = "404",
+            @APIResponse(
+                    responseCode = "404",
                     description = "Item not found"
             )})
     @GET
     @Path("/{itemId}")
-    public Response getItem(@Parameter(description = "Item ID", required = true)
+    public Response getItem(@Parameter(name = "item ID", required = true)
                                      @PathParam("itemId") Integer itemId) {
 
         Item item;

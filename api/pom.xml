@@ -33,10 +33,14 @@
             <artifactId>kumuluzee-openapi-mp-ui</artifactId>
         </dependency>
 
-
         <dependency>
             <groupId>mtn.rso.pricecompare</groupId>
             <artifactId>price-updater-services</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>mtn.rso.pricecompare</groupId>
+            <artifactId>price-updater-lib</artifactId>
         </dependency>
 
     </dependencies>

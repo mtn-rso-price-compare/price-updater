@@ -36,33 +36,39 @@ public class StoreResource {
     @Context
     protected UriInfo uriInfo;
 
-    @Operation(description = "Get a list of all stores.", summary = "Get all stores")
+    @Operation(description = "Get a list of all stores in the database.", summary = "Get all stores")
     @APIResponses({
-            @APIResponse(responseCode = "200",
+            @APIResponse(
+                    responseCode = "200",
                     description = "List of stores",
-                    content = @Content(schema = @Schema(implementation = Store.class, type = SchemaType.ARRAY)),
-                    headers = {@Header(name = "X-Total-Count", description = "Number of objects in list")}
+                    headers = {@Header(
+                            name = "X-Total-Count",
+                            description = "Number of objects in list"
+                    )},
+                    content = @Content(schema = @Schema(implementation = Store.class, type = SchemaType.ARRAY))
             )})
     @GET
     public Response getStore() {
 
         List<Store> storeList = storeBean.getStoreFilter(uriInfo);
-        return Response.status(Response.Status.OK).entity(storeList).build();
+        return Response.status(Response.Status.OK).header("X-Total-Count", storeList.size()).entity(storeList).build();
     }
 
 
-    @Operation(description = "Get a store and its prices.", summary = "Get store prices")
+    @Operation(description = "Get a store and its prices by store ID.", summary = "Get store")
     @APIResponses({
-            @APIResponse(responseCode = "200",
+            @APIResponse(
+                    responseCode = "200",
                     description = "Store",
                     content = @Content(schema = @Schema(implementation = Store.class))
             ),
-            @APIResponse(responseCode = "404",
+            @APIResponse(
+                    responseCode = "404",
                     description = "Store not found"
             )})
     @GET
     @Path("/{storeId}")
-    public Response getStore(@Parameter(description = "Store ID", required = true)
+    public Response getStore(@Parameter(name = "store ID", required = true)
                                      @PathParam("storeId") Integer storeId) {
 
         Store store;

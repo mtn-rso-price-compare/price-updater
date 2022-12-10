@@ -1,11 +1,16 @@
 package mtn.rso.pricecompare.priceupdater.lib;
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
 import java.util.List;
 
 public class Store {
 
+    @Schema(example = "1")
     private Integer storeId;
+    @Schema(example = "ENGROTUŠ d.o.o.")
     private String storeName;
+    @Schema(example = "https://www.tus.si")
     private String url;
     private List<Price> priceList;
 
