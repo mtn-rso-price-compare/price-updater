@@ -8,6 +8,7 @@ import mtn.rso.pricecompare.priceupdater.models.entities.ItemEntity;
 import mtn.rso.pricecompare.priceupdater.models.entities.PriceEntity;
 import mtn.rso.pricecompare.priceupdater.models.entities.PriceKey;
 import mtn.rso.pricecompare.priceupdater.models.entities.StoreEntity;
+import org.eclipse.microprofile.metrics.annotation.Counted;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -29,6 +30,7 @@ public class PriceBean {
     private EntityManager em;
 
     // generic GET query for all entities
+    @Counted(name = "prices_get_all_counter", description = "Displays the total number of getPrice() invocations that have occurred.")
     public List<Price> getPrice() {
 
         TypedQuery<PriceEntity> query = em.createNamedQuery("PriceEntity.getAll", PriceEntity.class);
@@ -39,6 +41,7 @@ public class PriceBean {
     }
 
     // GET request with parameters
+    @Counted(name = "prices_get_counter", description = "Displays the total number of getPrice(urInfo) invocations that have occurred.")
     public List<Price> getPrice(UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.query(uriInfo.getRequestUri().getQuery())
                 .defaultOffset(0).build();
@@ -48,6 +51,7 @@ public class PriceBean {
     }
 
     // POST
+    @Counted(name = "price_create_counter", description = "Displays the total number of createPrice(price) invocations that have occurred.")
     public Price createPrice(Price price) {
         ItemEntity itemEntity = em.find(ItemEntity.class, price.getItemId());
         StoreEntity storeEntity = em.find(StoreEntity.class, price.getStoreId());
@@ -70,6 +74,7 @@ public class PriceBean {
     }
 
     // GET by id
+    @Counted(name = "price_get_counter", description = "Displays the total number of getPrice(priceKey) invocations that have occurred.")
     public Price getPrice(PriceKey priceKey) {
 
         PriceEntity priceEntity = em.find(PriceEntity.class, priceKey);
@@ -80,6 +85,7 @@ public class PriceBean {
     }
 
     // PUT by id
+    @Counted(name = "price_put_counter", description = "Displays the total number of putPrice(price) invocations that have occurred.")
     public Price putPrice(Price price) {
         PriceKey priceKey = new PriceKey();
         priceKey.setItemId(price.getItemId());
@@ -109,6 +115,7 @@ public class PriceBean {
     }
 
     // DELETE by id
+    @Counted(name = "price_delete_counter", description = "Displays the total number of deletePrice(priceKey) invocations that have occurred.")
     public boolean deletePrice(PriceKey priceKey) {
         PriceEntity priceEntity = em.find(PriceEntity.class, priceKey);
         if (priceEntity == null)

@@ -46,7 +46,8 @@ public class StoreResource {
                             description = "Number of objects in list"
                     )},
                     content = @Content(schema = @Schema(implementation = Store.class, type = SchemaType.ARRAY))
-            )})
+            )
+    })
     @GET
     public Response getStore() {
 
@@ -65,7 +66,8 @@ public class StoreResource {
             @APIResponse(
                     responseCode = "404",
                     description = "Store not found"
-            )})
+            )
+    })
     @GET
     @Path("/{storeId}")
     public Response getStore(@Parameter(name = "store ID", required = true)

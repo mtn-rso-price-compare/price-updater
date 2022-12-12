@@ -7,9 +7,7 @@ import org.eclipse.microprofile.openapi.annotations.ExternalDocumentation;
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
 import org.eclipse.microprofile.openapi.annotations.info.Contact;
 import org.eclipse.microprofile.openapi.annotations.info.Info;
-import org.eclipse.microprofile.openapi.annotations.info.License;
 import org.eclipse.microprofile.openapi.annotations.servers.Server;
-import org.eclipse.microprofile.openapi.annotations.servers.ServerVariable;
 
 @OpenAPIDefinition(
         info = @Info(
@@ -21,9 +19,7 @@ import org.eclipse.microprofile.openapi.annotations.servers.ServerVariable;
                         email = "mr0017@student.uni-lj.si"
                 )
         ),
-        servers = {@Server(
-                url = "http://localhost:8080/"
-        )},
+        servers = {@Server(url = "http://localhost:8080/")},
         externalDocs = @ExternalDocumentation(
                 url = "https://github.com/mtn-rso-price-compare/docs",
                 description = "Slovene documentation of the application that this API is a part of."

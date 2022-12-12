@@ -6,11 +6,11 @@ import mtn.rso.pricecompare.priceupdater.services.beans.ItemBean;
 import mtn.rso.pricecompare.priceupdater.services.beans.PriceBean;
 import mtn.rso.pricecompare.priceupdater.services.beans.RequestBean;
 import mtn.rso.pricecompare.priceupdater.services.beans.StoreBean;
+import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.ws.rs.NotFoundException;
 
 @RequestScoped
 public class RequestProcessing {
@@ -28,6 +28,7 @@ public class RequestProcessing {
     private RequestBean requestBean;
 
     @Operation(description = "Process a request to update item prices.", summary = "Process request")
+    @Timed(name = "request_processing_timer", description = "Displays the total number of nanoseconds it takes for processRequest(requestId) to execute.")
     public void processRequest(Integer requestId) {
         // TODO: Implement proper request processing
 

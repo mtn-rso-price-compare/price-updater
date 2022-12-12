@@ -21,3 +21,17 @@ kumuluzee:
     ui:
       enabled: true
       mapping: /openapi/ui
+  metrics:
+    servlet:
+      enabled: true
+      mapping: /metrics
+    web-instrumentation:
+      - name: item-endpoint
+        url-pattern: /v1/item/*
+        status-codes: "200, 404, 500"
+      - name: store-endpoint
+        url-pattern: /v1/store/*
+        status-codes: "200, 404, 500"
+      - name: request-endpoint
+        url-pattern: /v1/request/*
+        status-codes: "200, 202, 404, 500"

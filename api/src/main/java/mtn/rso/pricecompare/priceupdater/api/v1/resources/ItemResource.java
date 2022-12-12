@@ -46,7 +46,8 @@ public class ItemResource {
                             description = "Number of objects in list"
                     )},
                     content = @Content(schema = @Schema(implementation = Item.class, type = SchemaType.ARRAY))
-            )})
+            )
+    })
     @GET
     public Response getItem() {
 
@@ -65,7 +66,8 @@ public class ItemResource {
             @APIResponse(
                     responseCode = "404",
                     description = "Item not found"
-            )})
+            )
+    })
     @GET
     @Path("/{itemId}")
     public Response getItem(@Parameter(name = "item ID", required = true)

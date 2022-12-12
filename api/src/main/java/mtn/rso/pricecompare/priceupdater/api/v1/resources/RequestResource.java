@@ -50,7 +50,8 @@ public class RequestResource {
                             description = "Number of objects in list"
                     )},
                     content = @Content(schema = @Schema(implementation = Request.class, type = SchemaType.ARRAY))
-            )})
+            )
+    })
     @GET
     public Response getRequest() {
 
@@ -68,7 +69,8 @@ public class RequestResource {
             @APIResponse(
                     responseCode = "500",
                     description = "Error in persisting request"
-            )})
+            )
+    })
     @POST
     public Response createRequest() {
 
@@ -93,7 +95,8 @@ public class RequestResource {
             @APIResponse(
                     responseCode = "404",
                     description = "Request not found"
-            )})
+            )
+    })
     @GET
     @Path("/{requestId}")
     public Response getRequest(@Parameter(name = "request ID", required = true)

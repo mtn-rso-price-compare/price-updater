@@ -5,6 +5,7 @@ import com.kumuluz.ee.rest.utils.JPAUtils;
 import mtn.rso.pricecompare.priceupdater.lib.Request;
 import mtn.rso.pricecompare.priceupdater.models.converters.RequestConverter;
 import mtn.rso.pricecompare.priceupdater.models.entities.RequestEntity;
+import org.eclipse.microprofile.metrics.annotation.Counted;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -27,6 +28,7 @@ public class RequestBean {
     private EntityManager em;
 
     // generic GET query for all entities
+    @Counted(name = "requests_get_all_counter", description = "Displays the total number of getRequest() invocations that have occurred.")
     public List<Request> getRequest() {
 
         TypedQuery<RequestEntity> query = em.createNamedQuery("RequestEntity.getAll", RequestEntity.class);
@@ -36,6 +38,7 @@ public class RequestBean {
     }
 
     // GET request with parameters
+    @Counted(name = "requests_get_counter", description = "Displays the total number of getRequest(uriInfo) invocations that have occurred.")
     public List<Request> getRequestFilter(UriInfo uriInfo) {
 
         QueryParameters queryParameters = QueryParameters.query(uriInfo.getRequestUri().getQuery())
@@ -46,6 +49,7 @@ public class RequestBean {
     }
 
     // POST
+    @Counted(name = "request_create_counter", description = "Displays the total number of createRequest() invocations that have occurred.")
     public Request createRequest() {
 
         RequestEntity requestEntity = new RequestEntity();
@@ -66,6 +70,7 @@ public class RequestBean {
     }
 
     // GET by id
+    @Counted(name = "request_get_counter", description = "Displays the total number of getRequest(id) invocations that have occurred.")
     public Request getRequest(Integer id) {
 
         RequestEntity requestEntity = em.find(RequestEntity.class, id);
@@ -76,6 +81,7 @@ public class RequestBean {
     }
 
     // PUT by id
+    @Counted(name = "request_put_counter", description = "Displays the total number of putRequest(id, status) invocations that have occurred.")
     public Request putRequest(Integer id, Integer status) {
 
         RequestEntity requestEntity = em.find(RequestEntity.class, id);
@@ -97,6 +103,7 @@ public class RequestBean {
     }
 
     // DELETE by id
+    @Counted(name = "request_delete_counter", description = "Displays the total number of deleteRequest(id) invocations that have occurred.")
     public boolean deleteRequest(Integer id) {
 
         RequestEntity requestEntity = em.find(RequestEntity.class, id);

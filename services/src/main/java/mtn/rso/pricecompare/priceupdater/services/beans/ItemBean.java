@@ -5,6 +5,7 @@ import com.kumuluz.ee.rest.utils.JPAUtils;
 import mtn.rso.pricecompare.priceupdater.lib.Item;
 import mtn.rso.pricecompare.priceupdater.models.converters.ItemConverter;
 import mtn.rso.pricecompare.priceupdater.models.entities.ItemEntity;
+import org.eclipse.microprofile.metrics.annotation.Counted;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -27,6 +28,7 @@ public class ItemBean {
     private EntityManager em;
 
     // generic GET query for all entities
+    @Counted(name = "items_get_all_counter", description = "Displays the total number of getItem() invocations that have occurred.")
     public List<Item> getItem() {
 
         TypedQuery<ItemEntity> query = em.createNamedQuery("ItemEntity.getAll", ItemEntity.class);
@@ -36,6 +38,7 @@ public class ItemBean {
     }
 
     // GET request with parameters
+    @Counted(name = "items_get_counter", description = "Displays the total number of getItemFilter(uriInfo) invocations that have occurred.")
     public List<Item> getItemFilter(UriInfo uriInfo) {
 
         QueryParameters queryParameters = QueryParameters.query(uriInfo.getRequestUri().getQuery())
@@ -47,6 +50,7 @@ public class ItemBean {
 
     // POST
     // NOTE: Does not create price entities if included. Use PriceBean to persist those.
+    @Counted(name = "item_create_counter", description = "Displays the total number of createItem(item) invocations that have occurred.")
     public Item createItem(Item item) {
         ItemEntity itemEntity = ItemConverter.toEntity(item, Collections.emptyList());
 
@@ -64,6 +68,7 @@ public class ItemBean {
     }
 
     // GET by id
+    @Counted(name = "item_get_counter", description = "Displays the total number of getItem(id) invocations that have occurred.")
     public Item getItem(Integer id) {
 
         ItemEntity itemEntity = em.find(ItemEntity.class, id);
@@ -75,6 +80,7 @@ public class ItemBean {
 
     // PUT by id
     // NOTE: Does not update price entities if included. Use PriceBean to persist those.
+    @Counted(name = "item_put_counter", description = "Displays the total number of putItem(id, item) invocations that have occurred.")
     public Item putItem(Integer id, Item item) {
 
         ItemEntity itemEntity = em.find(ItemEntity.class, id);
@@ -98,6 +104,7 @@ public class ItemBean {
 
     // DELETE by id
     // NOTE: It will fail if item has associated prices. Use PriceBean to delete those first.
+    @Counted(name = "item_delete_counter", description = "Displays the total number of deleteItem(id) invocations that have occurred.")
     public boolean deleteItem(Integer id) {
 
         ItemEntity itemEntity = em.find(ItemEntity.class, id);

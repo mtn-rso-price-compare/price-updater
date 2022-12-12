@@ -5,6 +5,7 @@ import com.kumuluz.ee.rest.utils.JPAUtils;
 import mtn.rso.pricecompare.priceupdater.lib.Store;
 import mtn.rso.pricecompare.priceupdater.models.converters.StoreConverter;
 import mtn.rso.pricecompare.priceupdater.models.entities.StoreEntity;
+import org.eclipse.microprofile.metrics.annotation.Counted;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -27,6 +28,7 @@ public class StoreBean {
     private EntityManager em;
 
     // generic GET query for all entities
+    @Counted(name = "stores_get_all_counter", description = "Displays the total number of getStore() invocations that have occurred.")
     public List<Store> getStore() {
 
         TypedQuery<StoreEntity> query = em.createNamedQuery("StoreEntity.getAll", StoreEntity.class);
@@ -36,6 +38,7 @@ public class StoreBean {
     }
 
     // GET request with parameters
+    @Counted(name = "stores_get_counter", description = "Displays the total number of getStore(uriInfo) invocations that have occurred.")
     public List<Store> getStoreFilter(UriInfo uriInfo) {
 
         QueryParameters queryParameters = QueryParameters.query(uriInfo.getRequestUri().getQuery())
@@ -47,6 +50,7 @@ public class StoreBean {
 
     // POST
     // NOTE: Does not create price entities if included. Use PriceBean to persist those.
+    @Counted(name = "store_create_counter", description = "Displays the total number of createStore(store) invocations that have occurred.")
     public Store createStore(Store store) {
         StoreEntity storeEntity = StoreConverter.toEntity(store, Collections.emptyList());
 
@@ -64,6 +68,7 @@ public class StoreBean {
     }
 
     // GET by id
+    @Counted(name = "store_get_counter", description = "Displays the total number of getStore(id) invocations that have occurred.")
     public Store getStore(Integer id) {
 
         StoreEntity storeEntity = em.find(StoreEntity.class, id);
@@ -75,6 +80,7 @@ public class StoreBean {
 
     // PUT by id
     // NOTE: Does not update price entities if included. Use PriceBean to persist those.
+    @Counted(name = "store_put_counter", description = "Displays the total number of putStore(id, store) invocations that have occurred.")
     public Store putStore(Integer id, Store store) {
 
         StoreEntity storeEntity = em.find(StoreEntity.class, id);
@@ -98,6 +104,7 @@ public class StoreBean {
 
     // DELETE by id
     // NOTE: It will fail if store has associated prices. Use PriceBean to delete those first.
+    @Counted(name = "store_delete_counter", description = "Displays the total number of deleteStore(id) invocations that have occurred.")
     public boolean deleteStore(Integer id) {
 
         StoreEntity storeEntity = em.find(StoreEntity.class, id);
