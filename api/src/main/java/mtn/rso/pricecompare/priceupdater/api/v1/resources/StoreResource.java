@@ -19,6 +19,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -50,9 +51,14 @@ public class StoreResource {
     })
     @GET
     public Response getStore() {
+        log.log(Level.FINER, "getStore() entry.");
 
         List<Store> storeList = storeBean.getStoreFilter(uriInfo);
-        return Response.status(Response.Status.OK).header("X-Total-Count", storeList.size()).entity(storeList).build();
+        Response returnValue = Response.status(Response.Status.OK).header("X-Total-Count", storeList.size())
+                .entity(storeList).build();
+
+        log.log(Level.FINER, "getStore() return (200).");
+        return returnValue;
     }
 
 
@@ -72,14 +78,20 @@ public class StoreResource {
     @Path("/{storeId}")
     public Response getStore(@Parameter(name = "store ID", required = true)
                                      @PathParam("storeId") Integer storeId) {
+        log.log(Level.FINER, "getStore(storeId) entry.");
 
         Store store;
         try {
             store = storeBean.getStore(storeId);
         } catch (NotFoundException e) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            Response returnValue = Response.status(Response.Status.NOT_FOUND).build();
+            log.log(Level.FINER, "getStore(storeId) return (404).");
+            return returnValue;
         }
-        return Response.status(Response.Status.OK).entity(store).build();
+        Response returnValue = Response.status(Response.Status.OK).entity(store).build();
+
+        log.log(Level.FINER, "getStore(storeId) return (200).");
+        return returnValue;
     }
 
 }

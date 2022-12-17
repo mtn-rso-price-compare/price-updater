@@ -17,6 +17,7 @@ import javax.persistence.TypedQuery;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -32,61 +33,83 @@ public class PriceBean {
     // generic GET query for all entities
     @Counted(name = "prices_get_all_counter", description = "Displays the total number of getPrice() invocations that have occurred.")
     public List<Price> getPrice() {
+        log.log(Level.FINER, "getPrice() entry.");
 
         TypedQuery<PriceEntity> query = em.createNamedQuery("PriceEntity.getAll", PriceEntity.class);
         List<PriceEntity> resultList = query.getResultList();
-
-        return resultList.stream().map(pe -> PriceConverter.toDto(pe, true, true))
+        List<Price> returnValue = resultList.stream().map(pe -> PriceConverter.toDto(pe, true, true))
                 .collect(Collectors.toList());
+
+        log.log(Level.FINER, "getPrice() return.");
+        return returnValue;
     }
 
     // GET request with parameters
-    @Counted(name = "prices_get_counter", description = "Displays the total number of getPrice(urInfo) invocations that have occurred.")
-    public List<Price> getPrice(UriInfo uriInfo) {
+    @Counted(name = "prices_get_counter", description = "Displays the total number of getPriceFilter(urInfo) invocations that have occurred.")
+    public List<Price> getPriceFilter(UriInfo uriInfo) {
+        log.log(Level.FINER, "getPriceFilter(uriInfo) entry.");
+
         QueryParameters queryParameters = QueryParameters.query(uriInfo.getRequestUri().getQuery())
                 .defaultOffset(0).build();
-
-        return JPAUtils.queryEntities(em, PriceEntity.class, queryParameters).stream()
+        List<Price> returnValue = JPAUtils.queryEntities(em, PriceEntity.class, queryParameters).stream()
                 .map(pe -> PriceConverter.toDto(pe, true, true)).collect(Collectors.toList());
+
+        log.log(Level.FINER, "getPriceFilter(uriInfo) return.");
+        return returnValue;
     }
 
     // POST
     @Counted(name = "price_create_counter", description = "Displays the total number of createPrice(price) invocations that have occurred.")
     public Price createPrice(Price price) {
+        log.log(Level.FINER, "createPrice(price) entry.");
+
         ItemEntity itemEntity = em.find(ItemEntity.class, price.getItemId());
         StoreEntity storeEntity = em.find(StoreEntity.class, price.getStoreId());
-        if (itemEntity == null || storeEntity == null)
+        if (itemEntity == null || storeEntity == null) {
+            log.log(Level.FINE, "createPrice(price): did not create entity due to missing relations.");
             throw new NotFoundException();
+        }
         PriceEntity priceEntity = PriceConverter.toEntity(price, itemEntity, storeEntity);
 
         try {
             beginTx();
             em.persist(priceEntity);
             commitTx();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             rollbackTx();
         }
 
-        if (priceEntity.getId() == null)
+        if (priceEntity.getId() == null) {
+            log.log(Level.WARNING, "createPrice(price): could not persist entity.");
             throw new RuntimeException("Entity was not persisted");
-        return PriceConverter.toDto(priceEntity, true, true);
+        }
+
+        Price returnValue = PriceConverter.toDto(priceEntity, true, true);
+        log.log(Level.FINER, "createPrice(price) return.");
+        return returnValue;
     }
 
     // GET by id
     @Counted(name = "price_get_counter", description = "Displays the total number of getPrice(priceKey) invocations that have occurred.")
     public Price getPrice(PriceKey priceKey) {
+        log.log(Level.FINER, "getPrice(priceKey) entry.");
 
         PriceEntity priceEntity = em.find(PriceEntity.class, priceKey);
-        if (priceEntity == null)
+        if (priceEntity == null) {
+            log.log(Level.FINE, "getPrice(priceKey): could not find entity.");
             throw new NotFoundException();
+        }
 
-        return PriceConverter.toDto(priceEntity, true, true);
+        Price returnValue = PriceConverter.toDto(priceEntity, true, true);
+        log.log(Level.FINER, "getPrice(priceKey) return.");
+        return returnValue;
     }
 
     // PUT by id
     @Counted(name = "price_put_counter", description = "Displays the total number of putPrice(price) invocations that have occurred.")
     public Price putPrice(Price price) {
+        log.log(Level.FINER, "putPrice(price) entry.");
+
         PriceKey priceKey = new PriceKey();
         priceKey.setItemId(price.getItemId());
         priceKey.setStoreId(price.getStoreId());
@@ -95,8 +118,10 @@ public class PriceBean {
         ItemEntity itemEntity = em.find(ItemEntity.class, price.getItemId());
         StoreEntity storeEntity = em.find(StoreEntity.class, price.getStoreId());
 
-        if (priceEntity == null || itemEntity == null || storeEntity == null)
+        if (priceEntity == null || itemEntity == null || storeEntity == null) {
+            log.log(Level.FINE, "putPrice(price): could not find entity or its relations.");
             throw new NotFoundException();
+        }
         PriceEntity updatedPriceEntity = PriceConverter.toEntity(price, itemEntity, storeEntity);
         PriceConverter.completeEntity(updatedPriceEntity, priceEntity);
 
@@ -105,21 +130,27 @@ public class PriceBean {
             updatedPriceEntity.setId(priceEntity.getId());
             updatedPriceEntity = em.merge(updatedPriceEntity);
             commitTx();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             rollbackTx();
+            log.log(Level.WARNING, "putPrice(price): could not persist entity.");
             throw new RuntimeException("Entity was not persisted");
         }
 
-        return PriceConverter.toDto(updatedPriceEntity, true, true);
+        Price returnValue = PriceConverter.toDto(updatedPriceEntity, true, true);
+        log.log(Level.FINER, "putPrice(price) return.");
+        return returnValue;
     }
 
     // DELETE by id
     @Counted(name = "price_delete_counter", description = "Displays the total number of deletePrice(priceKey) invocations that have occurred.")
     public boolean deletePrice(PriceKey priceKey) {
+        log.log(Level.FINER, "deletePrice(priceKey) entry.");
+
         PriceEntity priceEntity = em.find(PriceEntity.class, priceKey);
-        if (priceEntity == null)
+        if (priceEntity == null) {
+            log.log(Level.FINE, "deletePrice(priceKey): could not find entity.");
             throw new NotFoundException();
+        }
 
         try {
             beginTx();
@@ -127,9 +158,11 @@ public class PriceBean {
             commitTx();
         } catch (Exception e) {
             rollbackTx();
+            log.log(Level.WARNING, "deletePrice(priceKey): could not remove entity.");
             return false;
         }
 
+        log.log(Level.FINER, "deletePrice(priceKey) return.");
         return true;
     }
 

@@ -11,9 +11,13 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @RequestScoped
 public class RequestProcessing {
+
+    private Logger log = Logger.getLogger(RequestProcessing.class.getName());
 
     @Inject
     private ItemBean itemBean;
@@ -30,6 +34,7 @@ public class RequestProcessing {
     @Operation(description = "Process a request to update item prices.", summary = "Process request")
     @Timed(name = "request_processing_timer", description = "Displays the total number of nanoseconds it takes for processRequest(requestId) to execute.")
     public void processRequest(Integer requestId) {
+        log.log(Level.INFO, "processRequest(requestId) entry.");
         // TODO: Implement proper request processing
 
         Item item = new Item();

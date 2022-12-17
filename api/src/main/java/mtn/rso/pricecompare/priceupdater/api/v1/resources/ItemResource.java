@@ -19,6 +19,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -50,9 +51,14 @@ public class ItemResource {
     })
     @GET
     public Response getItem() {
+        log.log(Level.FINER, "getItem() entry.");
 
         List<Item> itemList = itemBean.getItemFilter(uriInfo);
-        return Response.status(Response.Status.OK).header("X-Total-Count", itemList.size()).entity(itemList).build();
+        Response returnValue = Response.status(Response.Status.OK).header("X-Total-Count", itemList.size())
+                .entity(itemList).build();
+
+        log.log(Level.FINER, "getItem() return (200).");
+        return returnValue;
     }
 
 
@@ -72,14 +78,20 @@ public class ItemResource {
     @Path("/{itemId}")
     public Response getItem(@Parameter(name = "item ID", required = true)
                                      @PathParam("itemId") Integer itemId) {
+        log.log(Level.FINER, "getItem(itemId) entry.");
 
         Item item;
         try {
             item = itemBean.getItem(itemId);
         } catch (NotFoundException e) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            Response returnValue = Response.status(Response.Status.NOT_FOUND).build();
+            log.log(Level.FINER, "getItem(itemId) return (404).");
+            return returnValue;
         }
-        return Response.status(Response.Status.OK).entity(item).build();
+        Response returnValue = Response.status(Response.Status.OK).entity(item).build();
+
+        log.log(Level.FINER, "getItem(itemId) return (200).");
+        return returnValue;
     }
 
 }

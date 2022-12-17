@@ -47,8 +47,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.kumuluz.ee.config</groupId>
-            <artifactId>kumuluzee-config-mp</artifactId>
+            <groupId>com.kumuluz.ee.metrics</groupId>
+            <artifactId>kumuluzee-metrics-core</artifactId>
         </dependency>
 
         <dependency>
@@ -60,12 +60,6 @@
         <dependency>
             <groupId>mtn.rso.pricecompare</groupId>
             <artifactId>price-updater-models</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.microprofile.metrics</groupId>
-            <artifactId>microprofile-metrics-api</artifactId>
-            <version>2.3</version>
-            <scope>compile</scope>
         </dependency>
 
     </dependencies>

@@ -27,8 +27,9 @@ public class RequestConverter {
     public static String statusToString(Integer status) {
         return switch (status) {
             case 0 -> "SUCCESS";
-            case 1 -> "PROCESSING";
-            case 2 -> "FAILURE";
+            case 1 -> "FAILURE";
+            case 2 -> "PROCESSING";
+            case 3 -> "ACCEPTED";
             default -> "UNKNOWN";
         };
     }
@@ -36,8 +37,9 @@ public class RequestConverter {
     public static Integer statusToInteger(String status) {
         return switch (status) {
             case "SUCCESS" -> 0;
-            case "PROCESSING" -> 1;
-            case "FAILURE" -> 2;
+            case "FAILURE" -> 1;
+            case "PROCESSING" -> 2;
+            case "ACCEPTED" -> 3;
             default -> -1;
         };
     }
