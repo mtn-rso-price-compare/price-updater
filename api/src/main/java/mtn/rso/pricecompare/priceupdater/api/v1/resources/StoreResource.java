@@ -1,5 +1,6 @@
 package mtn.rso.pricecompare.priceupdater.api.v1.resources;
 
+import com.kumuluz.ee.logs.cdi.Log;
 import mtn.rso.pricecompare.priceupdater.lib.Store;
 import mtn.rso.pricecompare.priceupdater.services.beans.StoreBean;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -19,17 +20,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
+@Log
 @ApplicationScoped
 @Path("/store")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class StoreResource {
-
-    private Logger log = Logger.getLogger(StoreResource.class.getName());
 
     @Inject
     private StoreBean storeBean;
@@ -51,14 +49,9 @@ public class StoreResource {
     })
     @GET
     public Response getStore() {
-        log.log(Level.FINER, "getStore() entry.");
-
         List<Store> storeList = storeBean.getStoreFilter(uriInfo);
-        Response returnValue = Response.status(Response.Status.OK).header("X-Total-Count", storeList.size())
+        return Response.status(Response.Status.OK).header("X-Total-Count", storeList.size())
                 .entity(storeList).build();
-
-        log.log(Level.FINER, "getStore() return (200).");
-        return returnValue;
     }
 
 
@@ -78,20 +71,15 @@ public class StoreResource {
     @Path("/{storeId}")
     public Response getStore(@Parameter(name = "store ID", required = true)
                                      @PathParam("storeId") Integer storeId) {
-        log.log(Level.FINER, "getStore(storeId) entry.");
 
         Store store;
         try {
             store = storeBean.getStore(storeId);
         } catch (NotFoundException e) {
-            Response returnValue = Response.status(Response.Status.NOT_FOUND).build();
-            log.log(Level.FINER, "getStore(storeId) return (404).");
-            return returnValue;
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
-        Response returnValue = Response.status(Response.Status.OK).entity(store).build();
 
-        log.log(Level.FINER, "getStore(storeId) return (200).");
-        return returnValue;
+        return Response.status(Response.Status.OK).entity(store).build();
     }
 
 }

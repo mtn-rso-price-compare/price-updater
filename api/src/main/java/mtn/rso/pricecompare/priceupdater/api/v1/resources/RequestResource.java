@@ -1,5 +1,6 @@
 package mtn.rso.pricecompare.priceupdater.api.v1.resources;
 
+import com.kumuluz.ee.logs.cdi.Log;
 import mtn.rso.pricecompare.priceupdater.api.v1.processing.RequestProcessing;
 import mtn.rso.pricecompare.priceupdater.lib.Request;
 import mtn.rso.pricecompare.priceupdater.services.beans.RequestBean;
@@ -20,17 +21,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
+@Log
 @ApplicationScoped
-@Path("/request")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Path("/request")
 public class RequestResource {
-
-    private Logger log = Logger.getLogger(RequestResource.class.getName());
 
     @Inject
     private RequestBean requestBean;
@@ -55,14 +53,9 @@ public class RequestResource {
     })
     @GET
     public Response getRequest() {
-        log.log(Level.FINER, "getRequest() entry.");
-
         List<Request> requestList = requestBean.getRequestFilter(uriInfo);
-        Response returnValue = Response.status(Response.Status.OK).header("X-Total-Count", requestList.size())
+        return Response.status(Response.Status.OK).header("X-Total-Count", requestList.size())
                 .entity(requestList).build();
-
-        log.log(Level.FINER, "getRequest() return (200).");
-        return returnValue;
     }
 
     @Operation(description = "Submit a new request to update prices according to configuration.", summary = "Submit request")
@@ -79,23 +72,18 @@ public class RequestResource {
     })
     @POST
     public Response createRequest() {
-        log.log(Level.FINER, "createRequest() entry.");
 
         Request request;
         try {
             request = requestBean.createRequest();
         } catch (RuntimeException e) {
-            Response returnValue = Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-            log.log(Level.FINER, "createRequest() return (500).");
-            return returnValue;
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
 
         // TODO: Make this asynchronous
         requestProcessing.processRequest(request.getRequestId());
 
-        Response returnValue = Response.status(Response.Status.ACCEPTED).entity(request).build();
-        log.log(Level.FINER, "createRequest() return (202).");
-        return returnValue;
+        return Response.status(Response.Status.ACCEPTED).entity(request).build();
     }
 
     @Operation(description = "Get information for a recent request to update prices.", summary = "Get request")
@@ -114,20 +102,14 @@ public class RequestResource {
     @Path("/{requestId}")
     public Response getRequest(@Parameter(name = "request ID", required = true)
                                @PathParam("requestId") Integer requestId) {
-        log.log(Level.FINER, "getRequest(requestId) entry.");
-
         Request request;
         try {
             request = requestBean.getRequest(requestId);
         } catch (NotFoundException e) {
-            Response returnValue = Response.status(Response.Status.NOT_FOUND).build();
-            log.log(Level.FINER, "getRequest(requestId) return (404).");
-            return returnValue;
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        Response returnValue = Response.status(Response.Status.OK).entity(request).build();
-        log.log(Level.FINER, "getRequest(requestId) return (200).");
-        return returnValue;
+        return Response.status(Response.Status.OK).entity(request).build();
     }
 
 }

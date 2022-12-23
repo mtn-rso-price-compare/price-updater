@@ -1,5 +1,6 @@
 package mtn.rso.pricecompare.priceupdater.api.v1.resources;
 
+import com.kumuluz.ee.logs.cdi.Log;
 import mtn.rso.pricecompare.priceupdater.lib.Item;
 import mtn.rso.pricecompare.priceupdater.services.beans.ItemBean;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -19,17 +20,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
+@Log
 @ApplicationScoped
 @Path("/item")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ItemResource {
-
-    private Logger log = Logger.getLogger(ItemResource.class.getName());
 
     @Inject
     private ItemBean itemBean;
@@ -51,14 +49,9 @@ public class ItemResource {
     })
     @GET
     public Response getItem() {
-        log.log(Level.FINER, "getItem() entry.");
-
         List<Item> itemList = itemBean.getItemFilter(uriInfo);
-        Response returnValue = Response.status(Response.Status.OK).header("X-Total-Count", itemList.size())
+        return Response.status(Response.Status.OK).header("X-Total-Count", itemList.size())
                 .entity(itemList).build();
-
-        log.log(Level.FINER, "getItem() return (200).");
-        return returnValue;
     }
 
 
@@ -78,20 +71,14 @@ public class ItemResource {
     @Path("/{itemId}")
     public Response getItem(@Parameter(name = "item ID", required = true)
                                      @PathParam("itemId") Integer itemId) {
-        log.log(Level.FINER, "getItem(itemId) entry.");
-
         Item item;
         try {
             item = itemBean.getItem(itemId);
         } catch (NotFoundException e) {
-            Response returnValue = Response.status(Response.Status.NOT_FOUND).build();
-            log.log(Level.FINER, "getItem(itemId) return (404).");
-            return returnValue;
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
-        Response returnValue = Response.status(Response.Status.OK).entity(item).build();
 
-        log.log(Level.FINER, "getItem(itemId) return (200).");
-        return returnValue;
+        return Response.status(Response.Status.OK).entity(item).build();
     }
 
 }

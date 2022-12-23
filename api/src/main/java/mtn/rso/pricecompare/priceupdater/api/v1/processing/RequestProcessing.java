@@ -1,5 +1,8 @@
 package mtn.rso.pricecompare.priceupdater.api.v1.processing;
 
+import com.kumuluz.ee.logs.LogManager;
+import com.kumuluz.ee.logs.Logger;
+import com.kumuluz.ee.logs.cdi.Log;
 import mtn.rso.pricecompare.priceupdater.lib.Item;
 import mtn.rso.pricecompare.priceupdater.models.converters.RequestConverter;
 import mtn.rso.pricecompare.priceupdater.services.beans.ItemBean;
@@ -11,13 +14,12 @@ import org.eclipse.microprofile.openapi.annotations.Operation;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+@Log
 @RequestScoped
 public class RequestProcessing {
 
-    private Logger log = Logger.getLogger(RequestProcessing.class.getName());
+    private final Logger log = LogManager.getLogger(RequestProcessing.class.getName());
 
     @Inject
     private ItemBean itemBean;
@@ -34,7 +36,9 @@ public class RequestProcessing {
     @Operation(description = "Process a request to update item prices.", summary = "Process request")
     @Timed(name = "request_processing_timer", description = "Displays the total number of nanoseconds it takes for processRequest(requestId) to execute.")
     public void processRequest(Integer requestId) {
-        log.log(Level.INFO, "processRequest(requestId) entry.");
+
+        log.info(String.format("processRequest(requestId): Processing update request with Id=%d.", requestId));
+
         // TODO: Implement proper request processing
 
         Item item = new Item();
