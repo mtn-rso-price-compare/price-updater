@@ -12,6 +12,13 @@ public class PriceKey implements Serializable {
     @Column(name = "store_id")
     private Integer storeId;
 
+    public PriceKey() {}
+
+    public PriceKey(Integer itemId, Integer storeId) {
+        this.itemId = itemId;
+        this.storeId = storeId;
+    }
+
     public Integer getItemId() {
         return itemId;
     }

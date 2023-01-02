@@ -26,20 +26,20 @@ public class RequestConverter {
 
     public static String statusToString(Integer status) {
         return switch (status) {
-            case 0 -> "SUCCESS";
-            case 1 -> "FAILURE";
-            case 2 -> "PROCESSING";
-            case 3 -> "ACCEPTED";
+            case 0 -> "PROCESSED";
+            case 1 -> "FAILED";
+            case 2 -> "ACCEPTED";
+            case 3 -> "PROCESSING";
             default -> "UNKNOWN";
         };
     }
 
     public static Integer statusToInteger(String status) {
         return switch (status) {
-            case "SUCCESS" -> 0;
-            case "FAILURE" -> 1;
-            case "PROCESSING" -> 2;
-            case "ACCEPTED" -> 3;
+            case "PROCESSED" -> 0;
+            case "FAILED" -> 1;
+            case "ACCEPTED" -> 2;
+            case "PROCESSING" -> 3;
             default -> -1;
         };
     }

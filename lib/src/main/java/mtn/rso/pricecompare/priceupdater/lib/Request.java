@@ -9,7 +9,7 @@ public class Request {
 
     @Schema(example = "1")
     private Integer requestId;
-    @Schema(example = "SUCCESS")
+    @Schema(example = "PROCESSED")
     private String status;
     @Schema(type = SchemaType.STRING, format = "date-time", example = "'2022-11-26T10:45:48Z'")
     private Instant lastUpdated;

@@ -21,6 +21,9 @@ kumuluzee:
     ui:
       enabled: true
       mapping: /openapi/ui
+  config:
+    consul:
+      agent: http://host.docker.internal:8500
   metrics:
     servlet:
       enabled: true
@@ -42,13 +45,28 @@ kumuluzee:
                               <Console name="console" target="SYSTEM_OUT">
                                   <PatternLayout pattern="%d %p %marker %m %X %ex %n"/>
                               </Console>
+                              <Socket name="logstash" host="3a68956d-0567-4cd2-8ad3-bfda5f432292-ls.logit.io" port="23732" protocol="udp">
+                                  <JSONLayout complete="false" compact="true" eventEol="true" charset="UTF-8" properties="true"/>
+                              </Socket>
                           </Appenders>
                           <Loggers>
                               <!-- Default logger -->
-                              <Logger name="mtn.rso.pricecompare.priceupdater" level="TRACE"/>
+                              <Logger name="mtn.rso.pricecompare.priceupdater" level="trace"/>
                               <Root level="info">
                                   <AppenderRef ref="console" level="trace" />
                                   <AppenderRef ref="logstash" level="trace" />
                               </Root>
                           </Loggers>
                       </Configuration>'
+
+api-properties:
+  return-all-item-prices: true
+  return-all-store-prices: true
+
+update-processing-properties:
+  request-retention-period: 604800
+  price-retention-period: 604800
+  data-source: 1
+  update-prices-tus: true
+  update-prices-mercator: true
+  update-prices-spar: true

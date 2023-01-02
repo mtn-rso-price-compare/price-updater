@@ -3,6 +3,7 @@ package mtn.rso.pricecompare.priceupdater.api.v1.resources;
 import com.kumuluz.ee.logs.cdi.Log;
 import mtn.rso.pricecompare.priceupdater.lib.Store;
 import mtn.rso.pricecompare.priceupdater.services.beans.StoreBean;
+import mtn.rso.pricecompare.priceupdater.services.config.ApiProperties;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.headers.Header;
@@ -32,6 +33,9 @@ public class StoreResource {
     @Inject
     private StoreBean storeBean;
 
+    @Inject
+    private ApiProperties apiProperties;
+
     @Context
     protected UriInfo uriInfo;
 
@@ -48,8 +52,13 @@ public class StoreResource {
             )
     })
     @GET
-    public Response getStore() {
-        List<Store> storeList = storeBean.getStoreFilter(uriInfo);
+    public Response getStore(@Parameter(name = "returnPrice",
+            description = "Determines if price information for stores should be returned.")
+                                 @QueryParam("returnPrice") boolean returnPrice) {
+        if(!uriInfo.getQueryParameters().containsKey("returnPrice"))
+            returnPrice = apiProperties.getReturnAllStorePrices();
+
+        List<Store> storeList = storeBean.getStoreFilter(uriInfo, returnPrice);
         return Response.status(Response.Status.OK).header("X-Total-Count", storeList.size())
                 .entity(storeList).build();
     }

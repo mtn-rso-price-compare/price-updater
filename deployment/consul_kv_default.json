@@ -1,0 +1,34 @@
+[
+  {
+    "key": "environments/dev/services/price-updater-service/1.0.0/config/api-properties/return-all-item-prices",
+    "value": "dHJ1ZQ=="
+  },
+  {
+    "key": "environments/dev/services/price-updater-service/1.0.0/config/api-properties/return-all-store-prices",
+    "value": "dHJ1ZQ=="
+  },
+  {
+    "key": "environments/dev/services/price-updater-service/1.0.0/config/update-processing-properties/request-retention-period",
+    "value": "NjA0ODAw"
+  },
+  {
+    "key": "environments/dev/services/price-updater-service/1.0.0/config/update-processing-properties/price-retention-period",
+    "value": "NjA0ODAw"
+  },
+  {
+    "key": "environments/dev/services/price-updater-service/1.0.0/config/update-processing-properties/data-source",
+    "value": "MQ=="
+  },
+  {
+    "key": "environments/dev/services/price-updater-service/1.0.0/config/update-processing-properties/update-prices-tus",
+    "value": "dHJ1ZQ=="
+  },
+  {
+    "key": "environments/dev/services/price-updater-service/1.0.0/config/update-processing-properties/update-prices-mercator",
+    "value": "dHJ1ZQ=="
+  },
+  {
+    "key": "environments/dev/services/price-updater-service/1.0.0/config/update-processing-properties/update-prices-spar",
+    "value": "dHJ1ZQ=="
+  }
+]

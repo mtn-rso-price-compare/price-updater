@@ -5,12 +5,14 @@ import com.kumuluz.ee.logs.Logger;
 import com.kumuluz.ee.logs.cdi.Log;
 import com.kumuluz.ee.rest.beans.QueryParameters;
 import com.kumuluz.ee.rest.utils.JPAUtils;
+import com.kumuluz.ee.rest.utils.QueryStringDefaults;
 import mtn.rso.pricecompare.priceupdater.lib.Store;
 import mtn.rso.pricecompare.priceupdater.models.converters.StoreConverter;
+import mtn.rso.pricecompare.priceupdater.models.entities.PriceEntity;
 import mtn.rso.pricecompare.priceupdater.models.entities.StoreEntity;
 import org.eclipse.microprofile.metrics.annotation.Counted;
 
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -22,7 +24,7 @@ import java.util.stream.Collectors;
 
 
 @Log
-@RequestScoped
+@ApplicationScoped
 public class StoreBean {
 
     private final Logger log = LogManager.getLogger(StoreBean.class.getName());
@@ -42,12 +44,21 @@ public class StoreBean {
 
     // GET request with parameters
     @Counted(name = "stores_get_counter", description = "Displays the total number of getStoreFilter(uriInfo) invocations that have occurred.")
-    public List<Store> getStoreFilter(UriInfo uriInfo) {
+    public List<Store> getStoreFilter(UriInfo uriInfo, Boolean returnPrice) {
 
-        QueryParameters queryParameters = QueryParameters.query(uriInfo.getRequestUri().getQuery())
-                .defaultOffset(0).build();
-        return JPAUtils.queryEntities(em, StoreEntity.class, queryParameters).stream()
-                .map(se -> StoreConverter.toDto(se, false)).collect(Collectors.toList());
+        QueryStringDefaults qsd = new QueryStringDefaults().maxLimit(200).defaultLimit(40).defaultOffset(0);
+        QueryParameters query = qsd.builder().queryEncoded(uriInfo.getRequestUri().getRawQuery()).build();
+        List<StoreEntity> storeEntities = JPAUtils.queryEntities(em, StoreEntity.class, query);
+
+        if(returnPrice) {
+            for(StoreEntity storeEntity : storeEntities) {
+                TypedQuery<PriceEntity> priceQuery = em.createNamedQuery("PriceEntity.getByStore", PriceEntity.class);
+                priceQuery.setParameter("storeId", storeEntity.getId());
+                storeEntity.setPriceEntityList(priceQuery.getResultList());
+            }
+        }
+
+        return storeEntities.stream().map(se -> StoreConverter.toDto(se, returnPrice)).collect(Collectors.toList());
     }
 
     // POST
@@ -66,7 +77,7 @@ public class StoreBean {
         }
 
         if (storeEntity.getId() == null) {
-            log.warn("createStore(store): could not persist entity.");
+            log.error("createStore(store): could not persist entity.");
             throw new RuntimeException("Entity was not persisted");
         }
         return StoreConverter.toDto(storeEntity, false);
@@ -81,6 +92,10 @@ public class StoreBean {
             log.debug("getStore(id): could not find entity.");
             throw new NotFoundException();
         }
+
+        TypedQuery<PriceEntity> priceQuery = em.createNamedQuery("PriceEntity.getByStore", PriceEntity.class);
+        priceQuery.setParameter("storeId", storeEntity.getId());
+        storeEntity.setPriceEntityList(priceQuery.getResultList());
 
         return StoreConverter.toDto(storeEntity, true);
     }
@@ -105,7 +120,7 @@ public class StoreBean {
             commitTx();
         } catch (Exception e) {
             rollbackTx();
-            log.warn("putStore(id, store): could not persist entity.");
+            log.error("putStore(id, store): could not persist entity.");
             throw new RuntimeException("Entity was not persisted");
         }
 
@@ -132,7 +147,7 @@ public class StoreBean {
             commitTx();
         } catch (Exception e) {
             rollbackTx();
-            log.warn("deleteStore(id): could not remove entity.");
+            log.error("deleteStore(id): could not remove entity.");
             return false;
         }
 

@@ -5,6 +5,7 @@ import com.kumuluz.ee.logs.Logger;
 import com.kumuluz.ee.logs.cdi.Log;
 import com.kumuluz.ee.rest.beans.QueryParameters;
 import com.kumuluz.ee.rest.utils.JPAUtils;
+import com.kumuluz.ee.rest.utils.QueryStringDefaults;
 import mtn.rso.pricecompare.priceupdater.lib.Price;
 import mtn.rso.pricecompare.priceupdater.models.converters.PriceConverter;
 import mtn.rso.pricecompare.priceupdater.models.entities.ItemEntity;
@@ -13,18 +14,19 @@ import mtn.rso.pricecompare.priceupdater.models.entities.PriceKey;
 import mtn.rso.pricecompare.priceupdater.models.entities.StoreEntity;
 import org.eclipse.microprofile.metrics.annotation.Counted;
 
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.UriInfo;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
 
 @Log
-@RequestScoped
+@ApplicationScoped
 public class PriceBean {
 
     private final Logger log = LogManager.getLogger(PriceBean.class.getName());
@@ -45,22 +47,23 @@ public class PriceBean {
     // GET request with parameters
     @Counted(name = "prices_get_counter", description = "Displays the total number of getPriceFilter(urInfo) invocations that have occurred.")
     public List<Price> getPriceFilter(UriInfo uriInfo) {
-        QueryParameters queryParameters = QueryParameters.query(uriInfo.getRequestUri().getQuery())
-                .defaultOffset(0).build();
-        return JPAUtils.queryEntities(em, PriceEntity.class, queryParameters).stream()
+        QueryStringDefaults qsd = new QueryStringDefaults().maxLimit(200).defaultLimit(40).defaultOffset(0);
+        QueryParameters query = qsd.builder().queryEncoded(uriInfo.getRequestUri().getRawQuery()).build();
+
+        return JPAUtils.queryEntities(em, PriceEntity.class, query).stream()
                 .map(pe -> PriceConverter.toDto(pe, true, true)).collect(Collectors.toList());
     }
 
     // POST
     @Counted(name = "price_create_counter", description = "Displays the total number of createPrice(price) invocations that have occurred.")
     public Price createPrice(Price price) {
-
         ItemEntity itemEntity = em.find(ItemEntity.class, price.getItemId());
         StoreEntity storeEntity = em.find(StoreEntity.class, price.getStoreId());
         if (itemEntity == null || storeEntity == null) {
             log.debug("createPrice(price): did not create entity due to missing relations.");
             throw new NotFoundException();
         }
+
         PriceEntity priceEntity = PriceConverter.toEntity(price, itemEntity, storeEntity);
 
         try {
@@ -72,7 +75,7 @@ public class PriceBean {
         }
 
         if (priceEntity.getId() == null) {
-            log.warn("createPrice(price): could not persist entity.");
+            log.error("createPrice(price): could not persist entity.");
             throw new RuntimeException("Entity was not persisted");
         }
 
@@ -108,6 +111,7 @@ public class PriceBean {
             log.debug("putPrice(price): could not find entity or its relations.");
             throw new NotFoundException();
         }
+
         PriceEntity updatedPriceEntity = PriceConverter.toEntity(price, itemEntity, storeEntity);
         PriceConverter.completeEntity(updatedPriceEntity, priceEntity);
 
@@ -118,11 +122,25 @@ public class PriceBean {
             commitTx();
         } catch (Exception e) {
             rollbackTx();
-            log.warn("putPrice(price): could not persist entity.");
+            log.error("putPrice(price): could not persist entity.");
             throw new RuntimeException("Entity was not persisted");
         }
 
         return PriceConverter.toDto(updatedPriceEntity, true, true);
+    }
+
+    // CREATE or PUT by id
+    @Counted(name = "price_createput_counter", description = "Displays the total number of createOrPutPrice(price) invocations that have occurred.")
+    public Price createOrPutPrice(Price price) {
+        PriceKey priceKey = new PriceKey();
+        priceKey.setItemId(price.getItemId());
+        priceKey.setStoreId(price.getStoreId());
+        PriceEntity priceEntity = em.find(PriceEntity.class, priceKey);
+
+        if (priceEntity == null)
+            return createPrice(price);
+        else
+            return putPrice(price);
     }
 
     // DELETE by id
@@ -141,7 +159,7 @@ public class PriceBean {
             commitTx();
         } catch (Exception e) {
             rollbackTx();
-            log.warn("deletePrice(priceKey): could not remove entity.");
+            log.error("deletePrice(priceKey): could not remove entity.");
             return false;
         }
 

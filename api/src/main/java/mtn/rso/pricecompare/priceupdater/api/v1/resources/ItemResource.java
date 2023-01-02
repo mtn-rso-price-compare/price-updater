@@ -3,6 +3,7 @@ package mtn.rso.pricecompare.priceupdater.api.v1.resources;
 import com.kumuluz.ee.logs.cdi.Log;
 import mtn.rso.pricecompare.priceupdater.lib.Item;
 import mtn.rso.pricecompare.priceupdater.services.beans.ItemBean;
+import mtn.rso.pricecompare.priceupdater.services.config.ApiProperties;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.headers.Header;
@@ -32,6 +33,9 @@ public class ItemResource {
     @Inject
     private ItemBean itemBean;
 
+    @Inject
+    private ApiProperties apiProperties;
+
     @Context
     protected UriInfo uriInfo;
 
@@ -48,8 +52,13 @@ public class ItemResource {
             )
     })
     @GET
-    public Response getItem() {
-        List<Item> itemList = itemBean.getItemFilter(uriInfo);
+    public Response getItem(@Parameter(name = "returnPrice",
+            description = "Determines if price information for items should be returned.")
+                                @QueryParam("returnPrice") boolean returnPrice) {
+        if(!uriInfo.getQueryParameters().containsKey("returnPrice"))
+            returnPrice = apiProperties.getReturnAllItemPrices();
+
+        List<Item> itemList = itemBean.getItemFilter(uriInfo, returnPrice);
         return Response.status(Response.Status.OK).header("X-Total-Count", itemList.size())
                 .entity(itemList).build();
     }
@@ -70,7 +79,8 @@ public class ItemResource {
     @GET
     @Path("/{itemId}")
     public Response getItem(@Parameter(name = "item ID", required = true)
-                                     @PathParam("itemId") Integer itemId) {
+                                @PathParam("itemId") Integer itemId) {
+
         Item item;
         try {
             item = itemBean.getItem(itemId);

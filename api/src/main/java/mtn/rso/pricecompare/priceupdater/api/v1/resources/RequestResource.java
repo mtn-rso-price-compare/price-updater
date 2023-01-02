@@ -80,7 +80,6 @@ public class RequestResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
 
-        // TODO: Make this asynchronous
         requestProcessing.processRequest(request.getRequestId());
 
         return Response.status(Response.Status.ACCEPTED).entity(request).build();

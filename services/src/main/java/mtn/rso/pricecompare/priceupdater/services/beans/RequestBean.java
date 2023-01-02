@@ -5,12 +5,13 @@ import com.kumuluz.ee.logs.Logger;
 import com.kumuluz.ee.logs.cdi.Log;
 import com.kumuluz.ee.rest.beans.QueryParameters;
 import com.kumuluz.ee.rest.utils.JPAUtils;
+import com.kumuluz.ee.rest.utils.QueryStringDefaults;
 import mtn.rso.pricecompare.priceupdater.lib.Request;
 import mtn.rso.pricecompare.priceupdater.models.converters.RequestConverter;
 import mtn.rso.pricecompare.priceupdater.models.entities.RequestEntity;
 import org.eclipse.microprofile.metrics.annotation.Counted;
 
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 
 
 @Log
-@RequestScoped
+@ApplicationScoped
 public class RequestBean {
 
     private final Logger log = LogManager.getLogger(RequestBean.class.getName());
@@ -43,9 +44,10 @@ public class RequestBean {
     @Counted(name = "requests_get_counter", description = "Displays the total number of getRequestFilter(uriInfo) invocations that have occurred.")
     public List<Request> getRequestFilter(UriInfo uriInfo) {
 
-        QueryParameters queryParameters = QueryParameters.query(uriInfo.getRequestUri().getQuery())
-                .defaultOffset(0).build();
-        return JPAUtils.queryEntities(em, RequestEntity.class, queryParameters).stream()
+        QueryStringDefaults qsd = new QueryStringDefaults().maxLimit(200).defaultLimit(40).defaultOffset(0);
+        QueryParameters query = qsd.builder().queryEncoded(uriInfo.getRequestUri().getRawQuery()).build();
+
+        return JPAUtils.queryEntities(em, RequestEntity.class, query).stream()
                 .map(RequestConverter::toDto).collect(Collectors.toList());
     }
 
@@ -66,7 +68,7 @@ public class RequestBean {
         }
 
         if (requestEntity.getId() == null) {
-            log.warn ("createRequest(): could not persist entity.");
+            log.error ("createRequest(): could not persist entity.");
             throw new RuntimeException("Entity was not persisted");
         }
 
@@ -96,15 +98,16 @@ public class RequestBean {
             throw new NotFoundException();
         }
 
+        requestEntity.setStatus(status);
+        requestEntity.setLastUpdated(Instant.now());
+
         try {
             beginTx();
-            requestEntity.setStatus(status);
-            requestEntity.setLastUpdated(Instant.now());
             requestEntity = em.merge(requestEntity);
             commitTx();
         } catch (Exception e) {
             rollbackTx();
-            log.warn("putRequest(id, status): could not persist entity.");
+            log.error("putRequest(id, status): could not persist entity.");
             throw new RuntimeException("Entity was not persisted");
         }
 
@@ -127,7 +130,7 @@ public class RequestBean {
             commitTx();
         } catch (Exception e) {
             rollbackTx();
-            log.warn("deleteRequest(id): could not remove entity.");
+            log.error("deleteRequest(id): could not remove entity.");
             return false;
         }
 

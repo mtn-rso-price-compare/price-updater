@@ -3,6 +3,7 @@ package mtn.rso.pricecompare.priceupdater.models.converters;
 import mtn.rso.pricecompare.priceupdater.lib.Price;
 import mtn.rso.pricecompare.priceupdater.models.entities.ItemEntity;
 import mtn.rso.pricecompare.priceupdater.models.entities.PriceEntity;
+import mtn.rso.pricecompare.priceupdater.models.entities.PriceKey;
 import mtn.rso.pricecompare.priceupdater.models.entities.StoreEntity;
 
 public class PriceConverter {
@@ -25,6 +26,7 @@ public class PriceConverter {
         PriceEntity entity = new PriceEntity();
         entity.setItemEntity(itemEntity);
         entity.setStoreEntity(storeEntity);
+        entity.setId(new PriceKey(itemEntity.getId(), storeEntity.getId()));
         entity.setAmount(dto.getAmount());
         entity.setLastUpdated(dto.getLastUpdated());
 
@@ -36,6 +38,8 @@ public class PriceConverter {
             partialEntity.setItemEntity(fullEntity.getItemEntity());
         if(partialEntity.getStoreEntity() == null)
             partialEntity.setStoreEntity(fullEntity.getStoreEntity());
+        if(partialEntity.getId() == null)
+            partialEntity.setId(fullEntity.getId());
         if(partialEntity.getAmount() == null)
             partialEntity.setAmount(fullEntity.getAmount());
         if(partialEntity.getLastUpdated() == null)
