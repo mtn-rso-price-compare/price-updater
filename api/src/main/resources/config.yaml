@@ -24,6 +24,12 @@ kumuluzee:
   config:
     consul:
       agent: http://host.docker.internal:8500
+  health:
+    checks:
+      data-source-health-check:
+        type: liveness
+        jndi-name: jdbc/PriceUpdaterDS
+
   metrics:
     servlet:
       enabled: true
@@ -58,6 +64,11 @@ kumuluzee:
                               </Root>
                           </Loggers>
                       </Configuration>'
+
+global-properties:
+  all-requests-processed: true
+  app-liveness: true
+  app-readiness: true
 
 api-properties:
   return-all-item-prices: true

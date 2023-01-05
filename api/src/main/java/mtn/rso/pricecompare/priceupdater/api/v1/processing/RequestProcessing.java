@@ -12,6 +12,7 @@ import mtn.rso.pricecompare.priceupdater.services.beans.ItemBean;
 import mtn.rso.pricecompare.priceupdater.services.beans.PriceBean;
 import mtn.rso.pricecompare.priceupdater.services.beans.RequestBean;
 import mtn.rso.pricecompare.priceupdater.services.beans.StoreBean;
+import mtn.rso.pricecompare.priceupdater.services.config.GlobalProperties;
 import mtn.rso.pricecompare.priceupdater.services.config.UpdateProcessingProperties;
 import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -36,9 +37,6 @@ public class RequestProcessing {
     private final Logger log = LogManager.getLogger(RequestProcessing.class.getName());
 
     @Inject
-    private UpdateProcessingProperties updateProcessingProperties;
-
-    @Inject
     private ItemBean itemBean;
 
     @Inject
@@ -49,6 +47,12 @@ public class RequestProcessing {
 
     @Inject
     private RequestBean requestBean;
+
+    @Inject
+    private UpdateProcessingProperties updateProcessingProperties;
+
+    @Inject
+    private GlobalProperties globalProperties;
 
     private CompletableFuture<Void> processingChain;
 
@@ -67,6 +71,7 @@ public class RequestProcessing {
     @Timed(name = "request_processing_timer", description = "Displays the total number of nanoseconds it takes for processRequest(requestId) to execute.")
     public void processRequest(Integer requestId) {
         processingChain = processingChain.thenRunAsync(() -> {
+            globalProperties.setAllRequestsProcessed(false);
             try {
                 processUpdate(requestId);
             } catch(Exception e1) {
@@ -78,6 +83,7 @@ public class RequestProcessing {
                             "FAILED (requestId=%d). Continuing with update.", requestId), e2);
                 }
             }
+            globalProperties.setAllRequestsProcessed(true);
         });
     }
 
