@@ -77,6 +77,7 @@ api-properties:
 
 update-processing-properties:
   request-retention-period: 604800
+  request-deletion-check-interval: 3600
   price-retention-period: 604800
   data-source: 1
   update-prices-tus: true

@@ -1,5 +1,6 @@
 package mtn.rso.pricecompare.priceupdater.api.v1.processing;
 
+import com.kumuluz.ee.configuration.utils.ConfigurationUtil;
 import com.kumuluz.ee.logs.LogManager;
 import com.kumuluz.ee.logs.Logger;
 import mtn.rso.pricecompare.priceupdater.lib.Item;
@@ -22,13 +23,11 @@ import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
+import java.sql.Time;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 
 @ApplicationScoped
@@ -54,6 +53,9 @@ public class RequestProcessing {
     @Inject
     private GlobalProperties globalProperties;
 
+    private ScheduledExecutorService executorService;
+    private ScheduledFuture<?> requestDeletionSchedule;
+
     private CompletableFuture<Void> processingChain;
 
     Set<String> itemNames;
@@ -62,9 +64,50 @@ public class RequestProcessing {
     Map<String, Double> pricesSpar;
 
     public void init(@Observes @Initialized(ApplicationScoped.class) Object init) {
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleAtFixedRate(this::deleteOldRequests, 60, 60, TimeUnit.SECONDS);
         processingChain = CompletableFuture.runAsync(this::initializeProcessing);
+        executorService = Executors.newSingleThreadScheduledExecutor();
+
+        String watchedKey = "update-processing-properties.request-deletion-check-interval";
+        Optional<String> keyValue = ConfigurationUtil.getInstance().get(watchedKey);
+        int delay;
+        if(keyValue.isPresent()) {
+            try {
+                delay = Integer.parseInt(keyValue.get());
+            } catch(NumberFormatException e) {
+                delay = 3600;
+            }
+        } else
+            delay = 3600;
+
+        requestDeletionSchedule = executorService.scheduleAtFixedRate(
+                this::deleteOldRequests, 60, delay, TimeUnit.SECONDS
+        );
+
+        ConfigurationUtil.getInstance().subscribe(watchedKey, (String key, String value) -> {
+
+            if (watchedKey.equals(key)) {
+
+                int newDelay;
+                try {
+                    newDelay = Integer.parseInt(value);
+                } catch(NumberFormatException e) {
+                    newDelay = 3600;
+                }
+
+                try {
+                    requestDeletionSchedule.cancel(false);
+                    requestDeletionSchedule = executorService.scheduleAtFixedRate(
+                            this::deleteOldRequests, 60, newDelay, TimeUnit.SECONDS
+                    );
+                    log.info(String.format("Restarted request deletion schedule to run every %d seconds.", newDelay));
+
+                } catch(Exception e) {
+                    log.error("Could not stop existing request deletion schedule.", e);
+                }
+
+            }
+
+        });
     }
 
     @Operation(description = "Process a request to update item prices.", summary = "Process request")
