@@ -63,7 +63,7 @@ public class RequestProcessing {
 
     public void init(@Observes @Initialized(ApplicationScoped.class) Object init) {
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleAtFixedRate(this::deleteOldRequests, 30, 30, TimeUnit.SECONDS);
+        executorService.scheduleAtFixedRate(this::deleteOldRequests, 60, 60, TimeUnit.SECONDS);
         processingChain = CompletableFuture.runAsync(this::initializeProcessing);
     }
 
