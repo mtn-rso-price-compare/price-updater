@@ -22,6 +22,9 @@ kumuluzee:
     ui:
       enabled: true
       mapping: /openapi/ui
+      server-auto-config:
+        enabled: true
+        original-uri-check: true
   config:
     consul:
       agent: http://host.docker.internal:8500
