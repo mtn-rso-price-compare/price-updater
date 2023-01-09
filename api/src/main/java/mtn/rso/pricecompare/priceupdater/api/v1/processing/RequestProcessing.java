@@ -111,7 +111,6 @@ public class RequestProcessing {
     }
 
     @Operation(description = "Process a request to update item prices.", summary = "Process request")
-    @Timed(name = "request_processing_timer", description = "Displays the total number of nanoseconds it takes for processRequest(requestId) to execute.")
     public void processRequest(Integer requestId) {
         processingChain = processingChain.thenRunAsync(() -> {
             globalProperties.setAllRequestsProcessed(false);
@@ -134,6 +133,7 @@ public class RequestProcessing {
         log.info("initializeProcessing(): Request processing initialized.");
     }
 
+    @Timed(name = "request_processing_timer", description = "Displays the total number of nanoseconds it takes for processUpdate(requestId) to execute.")
     private void processUpdate(Integer requestId) {
         log.info(String.format("processUpdate(requestId): Processing update request (requestId=%d).", requestId));
 
